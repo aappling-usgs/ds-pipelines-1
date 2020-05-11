@@ -1,15 +1,23 @@
 sources:
-  - code.R
+  - 1_fetch/src/fetch_mendota_data.R
+  - 2_process/src/assess_model_results.R
+  - 3_visualize/src/plot_results.R
 
 targets:
   all:
-    depends: figure_1.png
+    depends: 3_visualize/out/pgdl_rocks.png
 
-  model_RMSEs.csv:
-    command: download_data(target_name)
+  1_fetch/out/model_RMSEs.csv:
+    command: download_mendota_RMSEs(target_name)
 
-  processed:
-    command: process_data("model_RMSEs.csv")
+  eval_data:
+    command: summarize_model_results('1_fetch/out/model_RMSEs.csv')
+  
+  2_process/out/model_summary_results.csv:
+    command: write_model_summary_results(eval_data, target_name)
+    
+  2_process/out/model_diagnostic_text.txt:
+    command: write_results_assessment(eval_data, target_name)
 
-  figure_1.png:
-    command: myplot(target_name, processed)
+  3_visualize/out/pgdl_rocks.png:
+    command: plot_pgdl_awesomeness(eval_data, target_name)
